@@ -1,63 +1,87 @@
 import 'package:firstapp/components/task.dart';
+import 'package:firstapp/data/task_inherited.dart';
+import 'package:firstapp/screens/form_screen.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class InitialScreen extends StatefulWidget {
-  const InitialScreen({super.key});
+  InitialScreen({super.key});
+
+  double levelGlobal = 0;
 
   @override
   State<InitialScreen> createState() => _InitialScreenState();
 }
 
 class _InitialScreenState extends State<InitialScreen> {
-  bool opacidade = true;
+  double level = 0;
+
+  void _calculaLevelGlobal() {
+    double level = 0;
+    for (Task t in TaskInherited.of(context)!.taskList) {
+      level += (t.nivel / 10) * t.dificuldade;
+    }
+    widget.levelGlobal = level;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Container(),
-        title: const Text('Tarefas'),
-      ),
-      body: AnimatedOpacity(
-        opacity: opacidade ? 1 : 0,
-        duration: const Duration(seconds: 1),
-        child: ListView(
-          children: const [
-            Task(
-                'Aprender Flutter',
-                'https://pbs.twimg.com/media/Eu7m692XIAEvxxP?format=png&name=large',
-                5),
-            Task(
-                'Andar de Bike',
-                'https://tswbike.com/wp-content/uploads/2020/09/108034687_626160478000800_2490880540739582681_n-e1600200953343.jpg',
-                2),
-            Task(
-                'Estudar',
-                'https://thebogotapost.com/wp-content/uploads/2017/06/636052464065850579-137719760_flyer-image-1.jpg',
-                4),
-            Task(
-                'Meditar',
-                'https://manhattanmentalhealthcounseling.com/wp-content/uploads/2019/06/Top-5-Scientific-Findings-on-MeditationMindfulness-881x710.jpeg',
-                3),
-            Task(
-              'Jogar',
-              'https://i.ibb.co/tB29PZB/kako-epifania-2022-2-c-pia.jpg',
-              1,
-            ),
-            SizedBox(
-              height: 80,
-            )
-          ],
-        ),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text('Tarefas'),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _calculaLevelGlobal();
+                      });
+                    },
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 230,
+                      child: LinearProgressIndicator(
+                        color: Colors.white,
+                        value: widget.levelGlobal / 100,
+                      ),
+                    ),
+                    Text('Level Global: ${widget.levelGlobal.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          )),
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 70, top: 8),
+        children: TaskInherited.of(context)!.taskList,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            opacidade = !opacidade;
-          });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (contextNew) => FormScreen(taskContent: context),
+            ),
+          );
         },
         child: const Icon(
-          Icons.remove_red_eye,
+          Icons.add,
         ),
       ),
     );

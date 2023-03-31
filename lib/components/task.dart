@@ -1,19 +1,21 @@
 import 'package:firstapp/components/difficulty.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class Task extends StatefulWidget {
   final String taskName;
   final String foto;
   final int dificuldade;
 
-  const Task(this.taskName, this.foto, this.dificuldade, {super.key});
+  Task(this.taskName, this.foto, this.dificuldade, {super.key});
+
+  int nivel = 0;
 
   @override
   State<Task> createState() => _TaskState();
 }
 
 class _TaskState extends State<Task> {
-  int nivel = 0;
   int maestria = 0;
 
   Color coresMaestria() {
@@ -90,19 +92,17 @@ class _TaskState extends State<Task> {
                       height: 52,
                       width: 52,
                       child: ElevatedButton(
-                          
                           onPressed: () {
                             setState(() {
-                              nivel++;
-                              
-                              if (nivel > widget.dificuldade * 10) {
-                                nivel = 0;
-                                maestria++;
-                              };
+                              widget.nivel++;
 
-                              if(maestria >= 6) {
-                                nivel = widget.dificuldade * 10;
-                                
+                              if (widget.nivel > widget.dificuldade * 10) {
+                                widget.nivel = 0;
+                                maestria++;
+                              }
+
+                              if (maestria >= 6) {
+                                widget.nivel = widget.dificuldade * 10;
                               }
                             });
                           },
@@ -131,7 +131,7 @@ class _TaskState extends State<Task> {
                       child: LinearProgressIndicator(
                         color: Colors.white,
                         value: widget.dificuldade > 0
-                            ? (nivel / widget.dificuldade) / 10
+                            ? (widget.nivel / widget.dificuldade) / 10
                             : 1,
                       ),
                     ),
@@ -139,7 +139,7 @@ class _TaskState extends State<Task> {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
-                      'Nivel: ${maestria >= 6 ? 'MAX' : nivel}',
+                      'Nivel: ${maestria >= 6 ? 'MAX' : widget.nivel}',
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
